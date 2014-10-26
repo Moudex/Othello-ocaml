@@ -1,3 +1,6 @@
+(********************************
+ ****** PARTIE CONTROLLEUR ******
+ ********************************)
 type config = {
     nbcols  : int;
     nbrows  : int
@@ -11,6 +14,10 @@ type board = cell array array ;;
 
 (* Configuration par défaut *)
 let default_config = { nbcols=8; nbrows=8 } ;;
+let cell_size = ref 25
+let bg_r = ref 199
+let bg_g = ref 222
+let bg_b = ref 109
 
 (* Directions possibles pour la capture *)
 let directions = [
@@ -106,9 +113,76 @@ done;
 !finished
 ;;
 
-let game() =
-    let board = ref make_board;
 
+(******************************
+ ****** PARTIE GRAPHIQUE ******
+ ******************************)
+(* Affiche une case *)
+let display_cell board x y =
+    Graphics.set_color (Graphics.rgb !bg_r !bg_g !bg_b);
+    Graphics.fill_rect
+        (y * !cell_size + 1)
+        (x * !cell_size + 1)
+        (!cell_size - 2)
+        (!cell_size - 2);
+    Graphics.set_color Graphics.black;
+    Graphics.draw_rect
+        (y * !cell_size)
+        (x * !cell_size)
+        (y + !cell_size - y)
+        (x + !cell_size - x);
+    Graphics.set_color (match board.(y).(x) with
+                        | Black -> Graphics.black
+                        | _ -> Graphics.white);
+        if ( not ( board.(y).(x) = Empty)) then
+        (
+            Graphics.fill_circle
+                (y * !cell_size + !cell_size/2)
+                (x * !cell_size + !cell_size/2)
+                (!cell_size / 2 - 2);
+            Graphics.set_color Graphics.black;
+            Graphics.draw_circle
+                (y * !cell_size + !cell_size/2)
+                (x * !cell_size + !cell_size/2)
+                (!cell_size / 2 -2);
+        )
+;;
+
+(* Affiche le plateau *)
+let display_board board =
+    Graphics.open_graph
+    (Printf.sprintf
+    " %dx%d"
+    (!cell_size * Array.length board.(0)+1)
+    (21 + !cell_size * Array.length board.(0)));
+    for i=0 to Array.length board-1 do
+        for j=0 to Array.length board.(i)-1 do
+            display_cell board i j;
+        done;
+    done;
+;;
+
+(* Affichage des massages *)
+let display_message message =
+    Graphics.moveto 2 (Graphics.size_y()-18);
+    Graphics.set_color Graphics.black;
+    Graphics.draw_string message
+;;
+
+
+(***********************
+ ****** PARTIE IA ******
+ ***********************)
+
+
+(***********************
+ ****** LANCEMENT ******
+ ***********************)
+let game() =
+    let board = ref make_board in
+    display_board !board;
+
+    Graphics.close_graph
 ;;
 
 let main () =
