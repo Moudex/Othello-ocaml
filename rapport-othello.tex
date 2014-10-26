@@ -1,0 +1,95 @@
+\documentclass[10pt,a4paper]{report}
+\makeatletter
+% commande pour le bas
+\def\bas#1#2#3{%
+  \hbox to \hsize{%
+    \rlap{\vbox{\raggedright #1}}%
+    \hss
+    \clap{\vbox{\centering #2}}%
+    \hss
+    \llap{\vbox{\raggedleft #3}}}}%
+
+\def\thickhrulefill{\leavevmode \leaders \hrule height 1pt\hfill \kern \z@}
+\renewcommand{\maketitle}{\begin{titlepage}%
+    \let\footnotesize\small
+    \let\footnoterule\relax
+    \parindent \z@
+    \reset@font
+    \null
+    \vskip 50\p@
+    \begin{center}
+      \hrule
+      \vskip 1pt 
+      \hrule
+      \vskip 1pt
+      {\huge \bfseries \strut \@title \strut}\par
+      \vskip 1pt
+      \hrule
+      \vskip 1pt
+      \hrule
+    \end{center}
+    \vskip 50\p@ 
+    \begin{center}
+      \Large \@author \par
+    \end{center}
+    \vskip 30\p@
+    \begin{center}
+      \Large \@date \par
+    \end{center}
+    \vskip 180 \p@
+    \begin{center}
+    	\begin{quote}
+    		\textit{"Le jeu est la forme la plus \`{e}lev\`{e}e de la recherche."}
+    	\end{quote}
+    \end{center}
+    \begin{flushright}
+    Albert Einstein
+    \end{flushright}
+    \vfil
+    \null
+  \end{titlepage}%
+  \setcounter{footnote}{0}%
+}
+\makeatother
+\usepackage[utf8]{inputenc}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\author{Jérémi DUPIN, Philippe Escoute}
+\title{Othello Ocaml}
+\begin{document}
+\maketitle
+\part{Présentation du projet}
+\chapter{Introduction}
+\section*{Pourquoi programmer un jeu ?}
+Pour deux raisons :
+\begin{itemize}
+\item Le domaine du jeu est celui qui a le plus apporté à l'intelligence Artificielle. Pour le programmeur, c'est un défi intellectuel qui permet d'améliorer son propre raisonnement.
+\item Le problème de jeu est présent dans de nombreux centres de décisions tel que l'économie, la politique, le militaire ...
+\end{itemize}
+
+\section*{La théorie des jeux}
+Dans le problème des jeux, il y a deux facteurs essentiels : la coopération et la compétition.
+
+\chapter{Le jeu Othello}
+\section*{Historique}
+Othello a été "inventé" en 1971 par Goro Hasegawa, un japonais. C'est en fait une reprise du jeu Reversi, apparu au 19ème siècle en Angleterre, avec quelques règles supplémentaires et un copyright.
+\section*{Règles}
+
+\chapter{Cahier des charges}
+
+\part{Implémentation du jeu}
+
+\part{Intelligence artificielle}
+
+\part{conclusion}
+
+\part{Bibliographie}
+\begin{description}
+\item[Fédération Française d'Othello] : www.ffothello.org
+\end{description}
+
+\end{document}
