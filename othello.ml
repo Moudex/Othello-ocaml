@@ -6,8 +6,8 @@ type coord = {
     x   : int;
     y   : int
 } ;;
-type cell = White | Black | Empty
-type board = cell array array
+type cell = White | Black | Empty ;;
+type board = cell array array ;;
 
 (* Configuration par défaut *)
 let default_config = { nbcols=8; nbrows=8 } ;;
@@ -68,3 +68,51 @@ let playable_dir board c (x,y) (dx, dy) =
         )
     in playable_dir_rec (x + dx, y + dy) false
 ;;
+
+(* Teste si on peut jouer cette case *)
+let playable_cell board c x y =
+    if not (check_pos board x y) then
+        false
+    else
+        match board.(x).(y) with
+        | Empty -> (true && (List.fold_left (fun a b -> a || b) false (List.map
+        (fun d -> playable_dir board c (x, y) d) directions)))
+        | _ -> false
+;;
+
+(* Joue une case *)
+let play_cell board c x y =
+    (List.iter
+        (fun (dx, dy) -> if (playable_dir board c (x, y) (dx, dy)) then
+            let rec take (x, y) =
+                if (check_pos board x y) then
+                    if (board.(x).(y) = (get_opponent c)) then
+                        (board.(x).(y) <- c; take (x + dx, y + dy))
+                    in take (x + dx, y + dy)
+        )
+    directions);
+    board.(x).(y) <- c
+;;
+
+(* La partie est elle finie *)
+let is_finished board =
+let finished = ref true in
+    for i=0 to Array.length board-1 do
+        for j=0 to Array.length board.(i)-1 do
+            if board.(j).(i) = Empty then
+                finished := false;
+        done;
+done;
+!finished
+;;
+
+let game() =
+    let board = ref make_board;
+
+;;
+
+let main () =
+    game()
+;;
+
+main();
