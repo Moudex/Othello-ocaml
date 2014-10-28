@@ -82,7 +82,7 @@ pack ~side:`Right ~anchor:`N [coe frame_blanc];;
 let btn_jouer = Button.create
     ~text:"Jouer"
     ~command:(fun () ->
-        Printf.printf "On joue"
+    Printf.printf "On joue"
     )
     top
 ;;
