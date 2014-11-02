@@ -10,6 +10,10 @@ type pconf = {
 (*definition du plateau *)
 type plateau = case array array
 
+(* position et liste de positions *)
+type pos = (int * int)
+type liste_pos = pos list
+
 (* Directions possibles pour la capture *)
 let directions = [
     (-1,-1); (-1,0); (-1,1);
@@ -39,6 +43,12 @@ let init_plateau conf =
 let iter plateau f =
     for i=0 to ((Array.length plateau)-1) do for j=0 to ((Array.length
     plateau.(0))-1) do f (i,j) done done
+;;
+
+(* Copie le plateau *)
+let clone plateau =
+    Array.init (Array.length plateau) (fun y ->
+        Array.init (Array.length plateau.(0)) (fun x -> plateau.(y).(x)))
 ;;
 
 (* Faction opposée *)
@@ -83,6 +93,19 @@ let cap_case plateau c x y =
         | _ -> false
 ;;
 
+(* Liste les coups possibles *)
+let coups_possibles p c =
+    let coups = ref [] in
+    for i = 0 to (Array.length p) -1 do
+        for j = 0 to (Array.length p.(0)) -1 do
+            if (cap_case p c i j) then
+                (coups := (i, j)::!coups)
+        done;
+    done;
+    !coups
+;;
+
+
 (* Joue une couleur *)
 let joue_c plateau c x y =
     (List.iter
@@ -97,13 +120,24 @@ let joue_c plateau c x y =
     plateau.(x).(y) <- c
 ;;
 
+(* Compte le nombre de pieces d'une couleur donnée *)
+let nombre plateau couleur =
+    let res = ref 0 in
+    for i = 0 to (Array.length plateau) -1 do
+        for j = 0 to (Array.length plateau.(0)) -1 do
+            if plateau.(i).(j) = couleur then res := succ !res;
+        done;
+    done;
+    !res
+;;
+
 (* La partie est elle finie *)
 let fin plateau =
 let fini = ref true in
     for i=0 to Array.length plateau-1 do
-        for j=0 to Array.length plateau.(i)-1 do
+        for j=0 to Array.length plateau.(0)-1 do
             if plateau.(j).(i) = Vide then
-                fini := false;
+                fini := false
         done;
 done;
 !fini
@@ -113,10 +147,9 @@ done;
 let peut_jouer plateau c =
     let jouer = ref false in
         for i=0 to Array.length plateau-1 do
-            for j=0 to Array.length plateau.(i)-1 do
-                if plateau.(j).(i) = Vide then
+            for j=0 to Array.length plateau.(0)-1 do
                     if (cap_case plateau c i j) then
-                        jouer := true;
+                        jouer := true
             done;
         done;
     !jouer

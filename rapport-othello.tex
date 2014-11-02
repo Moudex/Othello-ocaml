@@ -62,32 +62,103 @@
 \title{Othello Ocaml}
 \begin{document}
 \maketitle
-\part{Présentation du projet}
-\chapter{Introduction}
-\section*{Pourquoi programmer un jeu ?}
+\chapter{Présentation du projet}
+\section{Introduction}
+\subsection*{Pourquoi programmer un jeu ?}
 Pour deux raisons :
 \begin{itemize}
 \item Le domaine du jeu est celui qui a le plus apporté à l'intelligence Artificielle. Pour le programmeur, c'est un défi intellectuel qui permet d'améliorer son propre raisonnement.
 \item Le problème de jeu est présent dans de nombreux centres de décisions tel que l'économie, la politique, le militaire ...
 \end{itemize}
 
-\section*{La théorie des jeux}
-Dans le problème des jeux, il y a deux facteurs essentiels : la coopération et la compétition.
-
-\chapter{Le jeu Othello}
-\section*{Historique}
+\section{Le jeu Othello}
+\subsection*{Historique}
 Othello a été "inventé" en 1971 par Goro Hasegawa, un japonais. C'est en fait une reprise du jeu Reversi, apparu au 19ème siècle en Angleterre, avec quelques règles supplémentaires et un copyright.
-\section*{Règles}
+\subsection*{Règles}
+C'est un jeu de stratégie à deux joueurs : Noir et Blanc. Il se joue sur un plateau unicolore de 64 cases, 8 sur 8, appelé othellier. Ces joueurs disposent de 64 pions bicolores, noirs d'un côté et blancs de l'autre. Quatre pions sont positionnés au départ sur le carré central, deux blancs et deux noirs en diagonal.
 
-\chapter{Cahier des charges}
+Lorsqu'un joueur pose un pion, la case doit être vide et il doit encadrer au moins un pion adverse avec sa couleur. Il retourne alors de sa couleur le ou les pions qu'il viens de capturer.
 
-\part{Implémentation du jeu}
+Le but du jeu est de posséder plus de pions que son adversaire à la fin de la partie. Celle-ci s'achève lorsque les 64 cases sont recouvertes.
 
-\part{Intelligence artificielle}
+Lorsqu'un joueur se retrouve bloqué et qu'il ne peut plus jouer, il cède alors son tour à l'adversaire.
 
-\part{conclusion}
+\section{Cahier des charges}
+Le programme doit être écrit en langage Ocaml.
+Il doit proposer tous les mode de jeux possible : joueur contre joueur, joueur contre ordinateur et ordinateur contre ordinateur avec un choix de l'algorithme pour pouvoir les comparer.
+Le programme doit disposer d'une interface graphique soignée.
+Une attention particulière doit être apportée a la fonction d'évaluation et à ses optimisations.
 
-\part{Bibliographie}
+\chapter{Implémentation du jeu}
+
+\chapter{Intelligence artificielle}
+
+\section{Fonction d'évaluation}
+C'est un élément essentiel pour une intelligence artificiel convenable, elle permet de mesurer la qualité d'une configuration de jeu. Pour le jeux Othello on peut distinguer trois critère d'évaluations :
+\begin{description}
+\item[Matériel] qui est calculé par le nombre de pions d'une couleur donnée;
+\item[Mobilité] qui est le nombre de cases jouables de cette couleur;
+\item[Force] qui est la somme des valeurs des cases occupées par cette couleur.
+\end{description}
+
+Pour le calcul du critère de force, on doit attribuer à chaque case une valeur tactique qui représente l’intérêt qu’on a à l’occuper. Voici un exemple de valuation possible :
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline 
+500 & -150 & 30 & 10 & 10 & 30 & -150 & 500 \\ 
+\hline 
+-150 & -250 & 0 & 0 & 0 & 0 & -250 & -150 \\ 
+\hline 
+30 & 0 & 1 & 2 & 2 & 1 & 0 & 30 \\ 
+\hline 
+10 & 0 & 2 & 16 & 16 & 2 & 0 & 10 \\ 
+\hline 
+10 & 0 & 2 & 16 & 16 & 2 & 0 & 10 \\ 
+\hline 
+30 & 0 & 1 & 2 & 2 & 1 & 0 & 30 \\ 
+\hline 
+-150 & -250 & 0 & 0 & 0 & 0 & -250 & -150 \\ 
+\hline 
+500 & -150 & 30 & 10 & 10 & 30 & -150 & 500 \\ 
+\hline 
+\end{tabular}
+\end{center}
+
+On peut justifier ce tableau par ces quelques remarques :
+\begin{itemize}
+\item Un pion placé dans un coin est imprenable et constitue donc une solide base de départ pour la conquête des bords;
+\item Les cases bordant le coin sont à éviter car elles donnent à l’adversaire la possibilité de prendre le coin;
+\item Les cases centrales augmente les possibilités de jeu;
+\item Les cases du bords sont également des points d’appui solides.
+\end{itemize}
+
+Attention cette évaluation positionnelle change en cours de partie :
+\begin{itemize}
+\item Lorsqu’on occupe déjà un coin, la possession des trois cases voisines devient intéressante ;
+\item Les cases du bord qui sont reliées au coin par une chaîne continue de pions de la même couleur deviennent plus intéressantes car elles sont désormais imprenables.
+\end{itemize}
+
+\section{Stratégie}
+On peut optimiser un algorithme de jeu en lui indiquant quelques stratégies.
+En effet bien souvent un algorithme de recherche du meilleur coup ne peut rarement voir la fin du jeu. Même si celui ci peut couper des possibilités de jeu inutiles pour s'alléger, on peut encore accélérer son exécution en améliorant sa fonction d'évaluation.
+
+L’importance relative des trois critères (matériel, mobilité et force) ne reste pas la même tout au long de la partie. On distingue trois phases dans une partie d’Othello : l’ouverture, le milieu de partie et la fin de partie.
+\begin{itemize}
+\item Pendant l’ouverture (les douze premiers coups environ), les critères à prendre en compte sont la mobilité (qui doit être maximum) et la position. A ce stade, on doit pouvoir avoir le plus grand éventail de possibilité de jeu pour trouver la meilleure;
+\item Ces deux critères restent valables pendant le milieu de partie mais une attention particulière doit être portée à la conquête des bords et des coins;
+\item À la fin de la partie, le critère prépondérant est évidemment le nombre de pions. l’arbre de jeu d’othello a un facteur de branchement plus faible vers la fin (les possibilités de jeu sont réduites) aussi est-il possible de choisir d’augmenter la profondeur d'exploration en fin de partie.
+\end{itemize}
+
+
+\chapter{conclusion}
+\section{Problèmes rencontrés}
+Modules et références
+
+\section{Améliorations possibles}
+
+\section{Le mot de la fin}
+
+\chapter{Bibliographie}
 \begin{description}
 \item[Fédération Française d'Othello] : www.ffothello.org
 \item[Conseils de programation] : http://caml.inria.fr/resources/doc/guides/guidelines.fr.html
