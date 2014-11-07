@@ -45,40 +45,51 @@ let naif couleur plateau =
     Plateau.Vide 
 ;;
 
-(* Algorithme minmax recursif *)
+
+
 let rec minmax_rec p c nc r eval =
     match r with
-    | 0 -> eval c
+    | 0 -> eval p c
     | _ ->
         let cp = Plateau.coups_possibles p c in
         match cp with
-        | [] -> eval c
+        | [] -> eval p c
         | _ ->
             match nc with
             | Max ->
-                List.fold_left (fun tmp suiv -> max tmp (minmax_rec (Plateau.joue p
-                (fst suiv) (snd suiv)) (Plateau.adversaire c) Min (pred r) eval )) 
-                -1000000 cp
+                let bsc = ref (-1000000) in
+                List.iter (fun coup ->
+                    let plat = ref (Plateau.clone p) in
+                    let coul = Plateau.joue !plat c (fst coup) (snd coup) in
+                    let sc = ref (minmax_rec !plat coul (match coul with | c -> Max | _ -> Min) (pred r) eval) in
+                    if sc > bsc then
+                        bsc := !sc
+                ) cp;
+                !bsc
             | Min ->
-                List.fold_left (fun tmp suiv -> min tmp (minmax_rec (Plateau.joue p
-                (fst suiv) (snd suiv)) (Plateau.adversaire c) Max (pred r) eval )) 
-                1000000 cp
+                let bsc = ref 1000000 in
+                List.iter (fun coup ->
+                    let plat = ref (Plateau.clone p) in
+                    let coul = Plateau.joue !plat c (fst coup) (snd coup) in
+                    let sc = ref (minmax_rec !plat coul (match coul with | c -> Min | _ -> Max) (pred r) eval) in
+                    if sc < bsc then
+                        bsc := !sc
+                ) cp;
+                !bsc
 ;;
 
 let minmax p c r eval =
-    if (r < 0) then
-        failwith "Rang incorrect"
-    let plat = ref (Plateau.clone p) in
-    let cp = Plateau.coup_possibles !plat c in
-    let valeurs = (List.map (fun x -> minmax_rec (Plateau.joue !plat (fst x) (snd x))
-    (Plateau.adversaire c) Min (pred r) eval) cp) in
-    let coup = ref List.head cp in
-    let max = ref List.head valeurs in
-        for i = 0 to List.length cp do
-            if ((List.nth valeurs i) > !max) then
-                !max := (List.nth valeurs i); !coup := (List.nth cp i)
-        done;
-    Plateau.joue p c (fst !coup) (snd !coup)
+    let cp = Plateau.coups_possibles p c in
+    let bsc = ref (-1000000) in
+    let bc = ref (List.hd cp) in
+    List.iter (fun coup ->
+        let plat = ref (Plateau.clone p) in
+        let coul = Plateau.joue !plat c (fst coup) (snd coup) in
+        let sc = ref (minmax_rec !plat coul (match coul with | c -> Max | _ -> Min) (pred r) eval) in
+        if sc > bsc then
+            bsc :=  !sc; bc := coup
+    ) cp;
+    Plateau.joue p c (fst !bc) (snd !bc)
 ;;
 
 let alphabeta couleur plateau =

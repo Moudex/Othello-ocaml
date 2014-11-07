@@ -45,7 +45,7 @@ let jeu () =
         | Jeu.Humain -> Ia.humain !tour !plat confa.Ograph.taille_case
         | Jeu.Aleatoire -> Ia.aleatoire !tour !plat
         | Jeu.Naif -> Ia.naif !tour !plat
-        | Jeu.MinMax -> Ia.minmax !plat !tour 6 Jeu.score_naif
+        | Jeu.MinMax -> Ia.minmax !plat !tour 3 Jeu.score_naif
         | Jeu.AlphaBeta -> Ia.alphabeta !tour !plat;
     done;
     Ograph.aff_plateau confa !plat;

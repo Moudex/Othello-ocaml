@@ -131,6 +131,16 @@ let nombre plateau couleur =
     !res
 ;;
 
+(* Determine le vainqueur *)
+let vainqueur plateau =
+    if (nombre plateau Blanc) > 32 then
+        Blanc
+    else if (nombre plateau Noir) > 32 then
+        Noir
+    else
+        Vide
+;;
+
 (* La partie est elle finie *)
 let fin plateau =
 let fini = ref true in
