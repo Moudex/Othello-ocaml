@@ -46,7 +46,7 @@ let jeu () =
         | Jeu.Aleatoire -> Ia.aleatoire !tour !plat
         | Jeu.Naif -> Ia.naif !tour !plat
         | Jeu.MinMax -> Ia.minmax !plat !tour 3 Jeu.score_naif
-        | Jeu.AlphaBeta -> Ia.alphabeta !tour !plat;
+        | Jeu.AlphaBeta -> Ia.alphabeta !plat !tour 4 Jeu.score_naif;
     done;
     Ograph.aff_plateau confa !plat;
     Ograph.aff_message "Pressez un touche pour quiter";

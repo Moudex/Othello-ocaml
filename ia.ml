@@ -10,6 +10,7 @@ type plateau_conf = Plateau.pconf
 
 type pos = Plateau.pos
 type liste_pos = Plateau.liste_pos
+exception Elagage
 
 let init conf_plat =
    () 
@@ -44,7 +45,6 @@ let rec aleatoire couleur plateau =
 let naif couleur plateau =
     Plateau.Vide 
 ;;
-
 
 
 let rec minmax_rec p c nc r eval =
@@ -92,6 +92,54 @@ let minmax p c r eval =
     Plateau.joue p c (fst !bc) (snd !bc)
 ;;
 
-let alphabeta couleur plateau =
-    Plateau.Vide
+
+let rec alphabeta_rec p c nc r eval alpha beta =
+    match r with
+    | 0 -> eval p c
+    | _ ->
+        let cp = Plateau.coups_possibles p c in
+        match cp with
+        | [] -> eval p c
+        | _ ->
+            match nc with
+            | Max ->
+                let al = ref alpha in
+                (try List.iter (fun coup ->
+                    let plat = ref (Plateau.clone p) in
+                    let coul = Plateau.joue !plat c (fst coup) (snd coup) in
+                    let sc = ref (alphabeta_rec !plat coul (match coul with | c -> Max | _ -> Min) (pred r) eval !al beta) in
+                    if !sc > !al then
+                        al := !sc;
+                        if !al >= beta then
+                            raise Elagage
+                ) cp with _ -> ());
+                !al
+            | Min ->
+                let be = ref beta in
+                (try List.iter (fun coup ->
+                    let plat = ref (Plateau.clone p) in
+                    let coul = Plateau.joue !plat c (fst coup) (snd coup) in
+                    let sc = ref (alphabeta_rec !plat coul (match coul with | c -> Min | _ -> Max) (pred r) eval alpha !be) in
+                    if !sc < !be then
+                        be := !sc;
+                        if alpha >= !be then
+                            raise Elagage
+                ) cp with _ -> ());
+                !be
+;;
+
+let alphabeta p c r eval =
+    let cp = Plateau.coups_possibles p c in
+    let alpha = ref (-1000000) in
+    let beta = ref 1000000 in
+    let bsc = ref (-1000000) in
+    let bc = ref (List.hd cp) in
+    List.iter (fun coup ->
+        let plat = ref (Plateau.clone p) in
+        let coul = Plateau.joue !plat c (fst coup) (snd coup) in
+        let sc = ref (alphabeta_rec !plat coul (match coul with | c -> Max | _ -> Min) (pred r) eval !alpha !beta) in
+        if !sc > !bsc then
+            bsc := !sc; bc := coup
+    ) cp;
+    Plateau.joue p c (fst !bc) (snd !bc)
 ;;
