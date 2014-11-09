@@ -19,6 +19,10 @@ You can copy to your games folder :
 You must be superuser.
 And now you can lanch it everywere.
 
+BUGS
+-----
+* End of game when there are only one color
+
 TODO
 -----
 * Better eval function

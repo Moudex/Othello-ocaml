@@ -22,8 +22,14 @@ type jconf = {
 
 type plateau = Plateau.plateau
 
-(* Score naif, nb pions oté du nb de pions adverse *)
-let score_naif plateau couleur =
-    (Plateau.nombre plateau couleur) - (Plateau.nombre plateau
-    (Plateau.adversaire couleur))
+(* Score materiel, nb pions oté du nb de pions adverse *)
+let score_materiel p c =
+    (Plateau.nombre p c) - (Plateau.nombre p
+    (Plateau.adversaire c))
+;;
+
+(* Score de mobilitee, nb de coups jouables oté de ceux adverse *)
+let score_mobilitee p c =
+    (Plateau.nbcoups_possibles p c) - (Plateau.nbcoups_possibles p
+    (Plateau.adversaire c))
 ;;

@@ -50,10 +50,14 @@ let jeu () =
         | Jeu.Aleatoire -> Ia.aleatoire !tour !plat
         | Jeu.MinMax -> Ia.minmax !plat !tour (match !tour with 
                                                             | Plateau.Blanc -> confj.Jeu.lvl_blanc
-                                                            | Plateau.Noir -> confj.Jeu.lvl_noir) Jeu.score_naif
+                                                            | Plateau.Noir ->
+                                                                    confj.Jeu.lvl_noir) Jeu.score_materiel
         | Jeu.AlphaBeta -> Ia.alphabeta !plat !tour (match !tour with 
                                                                     | Plateau.Blanc -> confj.Jeu.lvl_blanc
-                                                                    | Plateau.Noir -> confj.Jeu.lvl_noir) Jeu.score_naif
+                                                                    |
+                                                                    Plateau.Noir
+                                                                    ->
+                                                                        confj.Jeu.lvl_noir) Jeu.score_mobilitee
     done;
     Ograph.aff_plateau confa !plat;
     Ograph.aff_message "Pressez un touche pour quiter";

@@ -105,6 +105,17 @@ let coups_possibles p c =
     !coups
 ;;
 
+(* nb coups possible *)
+let nbcoups_possibles p c=
+    let nb = ref 0 in
+    for i = 0 to (Array.length p) -1 do
+        for j = 0 to (Array.length p.(0)) -1 do
+            if (cap_case p c i j) then
+                nb := 1 + !nb
+        done;
+    done;
+    !nb
+;;
 
 (* Joue une couleur *)
 let joue_c plateau c x y =
