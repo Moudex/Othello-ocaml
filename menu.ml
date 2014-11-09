@@ -29,20 +29,33 @@ let rb_noir txt ret = Radiobutton.create
     ~command:(fun () -> confj.Jeu.noir <- ret)
     frame_noir
 in
+let ev_noir = Textvariable.create () in
+Textvariable.set ev_noir "?";
+let eval_noir txt ret = Radiobutton.create
+    ~text:txt ~variable:ev_noir ~value:txt
+    ~command:(fun () -> confj.Jeu.eval_noir <- ret)
+    frame_noir
+in
 let diff_noir = Scale.create
-    ~min:0. ~max:10.
-    ~resolution:1. ~tickinterval:5.
+    ~min:2. ~max:10.
+    ~resolution:1. ~tickinterval:2.
     ~label:"Difficulté" ~orient:`Horizontal
     frame_noir
 in
 pack [coe (Label.create ~text:"Noir" frame_noir)];
 pack ~anchor:`W[coe (rb_noir "Humain" Jeu.Humain);
     coe (rb_noir "Aleatoire" Jeu.Aleatoire);
-    coe (rb_noir "Naif" Jeu.Naif);
     coe (rb_noir "Min Max" Jeu.MinMax);
     coe (rb_noir "Alpha Beta" Jeu.AlphaBeta);
 ];
 pack [coe diff_noir];
+pack ~anchor:`W[coe (eval_noir "Materiel" Jeu.Materiel);
+    coe (eval_noir "Mobilitee" Jeu.Mobilitee);
+    coe (eval_noir "Force" Jeu.Force);
+    coe (eval_noir "Hybride1" Jeu.Hybride1);
+    coe (eval_noir "Hybride2" Jeu.Hybride2);
+    coe (eval_noir "Evolutif" Jeu.Evolutif);
+];
 
 (* Blanc *)
 let frame_blanc = Frame.create ~relief:`Sunken ~borderwidth:2 frame_content in
@@ -53,20 +66,33 @@ let rb_blanc txt ret = Radiobutton.create
     ~command:(fun () -> confj.Jeu.blanc <- ret)
     frame_blanc
 in
+let ev_blanc = Textvariable.create () in
+Textvariable.set ev_blanc "?";
+let eval_blanc txt ret = Radiobutton.create
+    ~text:txt ~variable:ev_blanc ~value:txt
+    ~command:(fun () -> confj.Jeu.eval_blanc <- ret)
+    frame_blanc
+in
 let diff_blanc = Scale.create
-    ~min:0. ~max:10.
-    ~resolution:1. ~tickinterval:5.
+    ~min:2. ~max:10.
+    ~resolution:1. ~tickinterval:2.
     ~label:"Difficulté" ~orient:`Horizontal
     frame_blanc
 in
 pack [coe (Label.create ~text:"Blanc" frame_blanc)];
 pack ~anchor:`W[coe (rb_blanc "Humain" Jeu.Humain);
     coe (rb_blanc "Aleatoire" Jeu.Aleatoire);
-    coe (rb_blanc "Naif" Jeu.Naif);
     coe (rb_blanc "Min Max" Jeu.MinMax);
     coe (rb_blanc "Alpha Beta" Jeu.AlphaBeta);
 ];
 pack [coe diff_blanc];
+pack ~anchor:`W[coe (eval_blanc "Materiel" Jeu.Materiel);
+    coe (eval_blanc "Mobilitee" Jeu.Mobilitee);
+    coe (eval_blanc "Force" Jeu.Force);
+    coe (eval_blanc "Hybride1" Jeu.Hybride1);
+    coe (eval_blanc "Hybride2" Jeu.Hybride2);
+    coe (eval_blanc "Evolutif" Jeu.Evolutif);
+];
 
 (* Taille *)
 (*
@@ -87,6 +113,8 @@ pack ~side:`Right ~anchor:`N [coe frame_blanc];
 let btn_jouer = Button.create
     ~text:"Jouer"
     ~command:(fun () ->
+        confj.Jeu.lvl_noir <- int_of_float(Scale.get diff_noir);
+        confj.Jeu.lvl_blanc <- int_of_float(Scale.get diff_blanc);
         closeTk()
     )
     top

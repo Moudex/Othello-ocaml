@@ -81,7 +81,7 @@ let rec minmax_rec p c nc r eval =
 let minmax p c r eval =
     let cp = Plateau.coups_possibles p c in
     let bsc = ref (-1000000) in
-    let bc = ref (List.hd cp) in
+    let bc = ref (0, 0) in
     List.iter (fun coup ->
         let plat = ref (Plateau.clone p) in
         let coul = Plateau.joue !plat c (fst coup) (snd coup) in
@@ -133,7 +133,7 @@ let alphabeta p c r eval =
     let alpha = ref (-1000000) in
     let beta = ref 1000000 in
     let bsc = ref (-1000000) in
-    let bc = ref (List.hd cp) in
+    let bc = ref (0, 0) in
     List.iter (fun coup ->
         let plat = ref (Plateau.clone p) in
         let coul = Plateau.joue !plat c (fst coup) (snd coup) in

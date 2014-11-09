@@ -12,7 +12,11 @@ type couleur = Plateau.case;;
 
 let confj= {
     Jeu.noir = Jeu.Humain;
-    Jeu.blanc = Jeu.Humain
+    Jeu.eval_noir = Jeu.Materiel;
+    Jeu.lvl_noir = 3;
+    Jeu.blanc = Jeu.Humain;
+    Jeu.eval_blanc = Jeu.Materiel;
+    Jeu.lvl_blanc = 3
 }
 
 let confp= {
@@ -44,9 +48,12 @@ let jeu () =
         with
         | Jeu.Humain -> Ia.humain !tour !plat confa.Ograph.taille_case
         | Jeu.Aleatoire -> Ia.aleatoire !tour !plat
-        | Jeu.Naif -> Ia.naif !tour !plat
-        | Jeu.MinMax -> Ia.minmax !plat !tour 3 Jeu.score_naif
-        | Jeu.AlphaBeta -> Ia.alphabeta !plat !tour 4 Jeu.score_naif;
+        | Jeu.MinMax -> Ia.minmax !plat !tour (match !tour with 
+                                                            | Plateau.Blanc -> confj.Jeu.lvl_blanc
+                                                            | Plateau.Noir -> confj.Jeu.lvl_noir) Jeu.score_naif
+        | Jeu.AlphaBeta -> Ia.alphabeta !plat !tour (match !tour with 
+                                                                    | Plateau.Blanc -> confj.Jeu.lvl_blanc
+                                                                    | Plateau.Noir -> confj.Jeu.lvl_noir) Jeu.score_naif
     done;
     Ograph.aff_plateau confa !plat;
     Ograph.aff_message "Pressez un touche pour quiter";
