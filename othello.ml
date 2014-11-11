@@ -39,6 +39,7 @@ let jeu () =
     let plat = ref (Plateau.init_plateau confp) in
     let tour = ref Plateau.Noir in
     Ia.init confp;
+    Jeu.init confp;
     while not (!tour = Plateau.Vide) do
         Ograph.aff_plateau confa !plat;
         tour := match (match !tour with
@@ -51,7 +52,7 @@ let jeu () =
         | Jeu.MinMax -> Ia.minmax !plat !tour (match !tour with 
                                                             | Plateau.Blanc -> confj.Jeu.lvl_blanc
                                                             | Plateau.Noir ->
-                                                                    confj.Jeu.lvl_noir) Jeu.score_materiel
+                                                                    confj.Jeu.lvl_noir) Jeu.score_force
         | Jeu.AlphaBeta -> Ia.alphabeta !plat !tour (match !tour with 
                                                                     | Plateau.Blanc -> confj.Jeu.lvl_blanc
                                                                     |
