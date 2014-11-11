@@ -43,7 +43,7 @@ let aff_plateau conf plateau =
     (Printf.sprintf
     " %dx%d"
     (conf.taille_case * Array.length plateau.(0)+1)
-    (21 + conf.taille_case * Array.length plateau.(0)));
+    (55 + conf.taille_case * Array.length plateau.(0)));
     for i=0 to Array.length plateau-1 do
         for j=0 to Array.length plateau.(i)-1 do
             aff_case conf plateau i j;
@@ -56,4 +56,13 @@ let aff_message message =
     Graphics.moveto 2 (Graphics.size_y()-18);
     Graphics.set_color Graphics.black;
     Graphics.draw_string message
+;;
+
+(* Affiche les scores *)
+let aff_scores scb scn =
+    Graphics.moveto 2 (Graphics.size_y()-36);
+    Graphics.set_color Graphics.black;
+    Graphics.draw_string scb;
+    Graphics.moveto 2 (Graphics.size_y()-54);
+    Graphics.draw_string scn
 ;;

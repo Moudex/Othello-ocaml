@@ -42,6 +42,13 @@ let jeu () =
     Jeu.init confp;
     while not (!tour = Plateau.Vide) do
         Ograph.aff_plateau confa !plat;
+        Ograph.aff_scores
+            ("Blanc : " ^ (string_of_int (Jeu.score_materiel2 !plat
+            Plateau.Blanc))^"ma "^(string_of_int (Jeu.score_mobilitee2 !plat
+            Plateau.Blanc)^"mo"))
+            ("Noir : " ^ (string_of_int (Jeu.score_materiel2 !plat
+            Plateau.Noir))^"ma "^(string_of_int (Jeu.score_mobilitee2 !plat
+            Plateau.Noir)^"mo"));
         tour := match (match !tour with
                 | Plateau.Noir -> Ograph.aff_message "Au tour des noirs..."; confj.Jeu.noir
                 | Plateau.Blanc -> Ograph.aff_message "Au tour des blancs..."; confj.Jeu.blanc

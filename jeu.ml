@@ -39,10 +39,18 @@ let score_materiel p c =
     (Plateau.adversaire c))
 ;;
 
+let score_materiel2 p c =
+    Plateau.nombre p c
+;;
+
 (* Score de mobilitee, nb de coups jouables oté de ceux adverse *)
 let score_mobilitee p c =
     (Plateau.nbcoups_possibles p c) - (Plateau.nbcoups_possibles p
     (Plateau.adversaire c))
+;;
+
+let score_mobilitee2 p c =
+    Plateau.nbcoups_possibles p c
 ;;
 
 let const_force conf =
