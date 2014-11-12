@@ -28,3 +28,4 @@ TODO
 * Better eval function
 * End menu
 * Console mode
+* Random sur MinMax et AlphaBeta sur score identique

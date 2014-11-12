@@ -7,8 +7,18 @@ type pconf = {
     nbligs  : int
 }
 
-(*definition du plateau *)
-type plateau = case array array
+(*definition du plateau de jeu *)
+type p_jeu = case array array
+
+(* definition du plateau d'evaluation *)
+type p_eval = int array array
+
+(* plateau de jeux et evaluation *)
+type plateaux = {
+    mutable jeu : p_jeu;
+    mutable e_noir  : p_eval;
+    mutable e_blanc : p_eval
+}
 
 (* position et liste de positions *)
 type pos = (int * int)
@@ -21,34 +31,92 @@ let directions = [
     (1,-1); (1,0); (1,1)
 ];;
 
-(* Construction du plateau *)
+(* Construction des plateaux *)
 let const_plateau conf =
-    Array.init conf.nbcols
-        (fun y -> Array.init conf.nbligs
-            (fun x -> Vide)
-        )
+    let plats = {
+        jeu = Array.init conf.nbcols (fun y->Array.init conf.nbligs (fun x->Vide));
+        e_noir = Array.init conf.nbcols (fun y->Array.init conf.nbligs (fun x->0));
+        e_blanc = Array.init conf.nbcols (fun y->Array.init conf.nbligs (fun x->0))
+    }
 ;;
 
-(* Initialisation du carré central *)
+(* Initialisation du carré central et des plateau eval*)
 let init_plateau conf =
-    let plateau = const_plateau conf in
-    plateau.((Array.length plateau)/2-1).((Array.length plateau)/2-1) <- Blanc;
-    plateau.((Array.length plateau)/2).((Array.length plateau)/2) <- Blanc;
-    plateau.((Array.length plateau)/2).((Array.length plateau)/2-1) <- Noir;
-    plateau.((Array.length plateau)/2-1).((Array.length plateau)/2) <- Noir;
-    plateau
+    let plats = const_plateau conf in
+    let ligs = conf.nbligs in
+    let cols = conf.nbcols in
+    (* Carre central *)
+    plats.jeu.(cols/2-1).(ligs/2-1) <- Blanc;
+    plats.jeu.(cols/2).(ligs/2) <- Blanc;
+    plats.jeu.(cols/2).(ligs/2-1) <- Noir;
+    plats.jeu.(cols/2-1).(ligs/2) <- Noir;
+    (* plateau d'evaluation *)
+    plats.e_noir.(cols/2-1).(ligs/2-1) <- 16;
+    plats.e_noir.(cols/2).(ligs/2) <- 16;
+    plats.e_noir.(cols/2).(ligs/2-1) <- 16;
+    plats.e_noir.(cols/2-1).(ligs/2) <- 16;
+    plats.e_noir.(cols/2-2).(ligs/2-1) <- 2;
+    plats.e_noir.(cols/2-2).(ligs/2) <- 2;
+    plats.e_noir.(cols/2+1).(ligs/2-1) <- 2;
+    plats.e_noir.(cols/2+1).(ligs/2) <- 2;
+    plats.e_noir.(cols/2-1).(ligs/2-2) <- 2;
+    plats.e_noir.(cols/2).(ligs/2-2) <- 2;
+    plats.e_noir.(cols/2-1).(ligs/2+1) <- 2;
+    plats.e_noir.(cols/2).(ligs/2+1) <- 2;
+    plats.e_noir.(cols/2-2).(ligs/2-2) <- 1;
+    plats.e_noir.(cols/2-2).(ligs/2+1) <- 1;
+    plats.e_noir.(cols/2+1).(ligs/2-2) <- 1;
+    plats.e_noir.(cols/2+1).(ligs/2+1) <- 1;
+    plats.e_noir.(cols-1).(ligs-1) <- 500;
+    plats.e_noir.(cols-1).(0) <- 500;
+    plats.e_noir.(0).(ligs-1) <- 500;
+    plats.e_noir.(0).(0) <- 500;
+    plats.e_noir.(cols-2).(ligs-1) <- -150;
+    plats.e_noir.(cols-3).(ligs-1) <- 30;
+    plats.e_noir.(cols-1).(ligs-2) <- -150;
+    plats.e_noir.(cols-1).(ligs-3) <- 30;
+    plats.e_noir.(cols-2).(ligs-2) <- -250;
+    plats.e_noir.(cols-2).(0) <- -150;
+    plats.e_noir.(cols-3).(0) <- 30;
+    plats.e_noir.(cols-1).(1) <- -150;
+    plats.e_noir.(cols-1).(2) <- 30;
+    plats.e_noir.(cols-2).(1) <- -250;
+    plats.e_noir.(0).(ligs-2) <- -150;
+    plats.e_noir.(0).(ligs-3) <- 30;
+    plats.e_noir.(1).(ligs-1) <- -150;
+    plats.e_noir.(2).(ligs-1) <- 30;
+    plats.e_noir.(1).(ligs-2) <- -250;
+    plats.e_noir.(0).(1) <- -150;
+    plats.e_noir.(0).(2) <- 30;
+    plats.e_noir.(1).(0) <- -150;
+    plats.e_noir.(2).(0) <- 30;
+    plats.e_noir.(1).(1) <- -250;
+    for i=3 to ligs-4 do
+        for j=3 to cols-4 do
+            plats.e_noir.(0).(i) <- 10;
+            plats.e_noir.(cols-1).(i) <- 10;
+            plats.e_noir.(j).(0) <- 10;
+            plats.e_noir.(j).(ligs-1) <- 10;
+        done;
+    done;
+    (* copie eval blanc *)
+    for i=0 to ligs-1 do
+        for j=0 to cols-1 do
+            plats.e_blanc.(j).(i) <- plats.e_noir.(j).(i);
+        done;
+    done;
+    plats
 ;;
 
-(* Iterateur sur l'ensemble des cases du plateau *)
-let iter plateau f =
-    for i=0 to ((Array.length plateau)-1) do for j=0 to ((Array.length
-    plateau.(0))-1) do f (i,j) done done
-;;
-
-(* Copie le plateau *)
-let clone plateau =
-    Array.init (Array.length plateau) (fun y ->
-        Array.init (Array.length plateau.(0)) (fun x -> plateau.(y).(x)))
+(* Copie les plateaux *)
+let clone plateaux =
+    let cols = Array.length plateaux.jeu in
+    let ligs = Array.length plateaux.jeu.(0) in
+    let plats = {
+        jeu = Array.init cols (fun y->Array.init ligs (fun x->plateaux.jeu.(y).(x)));
+        e_noir = Array.init cols (fun y->Array.init ligs (fun x->plateaux.e_noir.(y).(x)));
+        e_blanc = Array.init cols (fun y->Array.init ligs (fun x->plateaux.e_blanc.(y).(x)))
+    }
 ;;
 
 (* Faction opposée *)
@@ -115,6 +183,11 @@ let nbcoups_possibles p c=
         done;
     done;
     !nb
+;;
+
+(* Met a jour le plateau de force de la couleur *)
+let maj_force plateaux c x y =
+    
 ;;
 
 (* Joue une couleur *)
