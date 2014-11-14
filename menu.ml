@@ -4,7 +4,7 @@ type plateau_conf = Plateau.pconf;;
 (* configuration affichage *)
 type affichage_conf = Ograph.aconf;; 
 
-(* configuration jeu *)
+(* configuration Jeu *)
 type jeu_conf = Jeu.jconf;;
 
 (* Ouverture d'une fenetre *)
@@ -15,7 +15,7 @@ Wm.title_set top "Othello by Dupin and Escoute" ;
 
 (* Frame titre *)
 let frame_title = Frame.create top in
-pack ~side:`Top ~padx:8 ~pady:4 [coe(Label.create ~text:"Othello" frame_title)];
+pack ~side:`Top ~padx:8 ~pady:4 [coe(Label.create ~text:"Jeu" frame_title)];
 
 (* Frame centrale *)
 let frame_content = Frame.create top in

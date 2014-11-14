@@ -37,7 +37,8 @@ let const_plateau conf =
         jeu = Array.init conf.nbcols (fun y->Array.init conf.nbligs (fun x->Vide));
         e_noir = Array.init conf.nbcols (fun y->Array.init conf.nbligs (fun x->0));
         e_blanc = Array.init conf.nbcols (fun y->Array.init conf.nbligs (fun x->0))
-    }
+    } in
+    plats
 ;;
 
 (* Initialisation du carré central et des plateau eval*)
@@ -116,7 +117,7 @@ let clone plateaux =
         jeu = Array.init cols (fun y->Array.init ligs (fun x->plateaux.jeu.(y).(x)));
         e_noir = Array.init cols (fun y->Array.init ligs (fun x->plateaux.e_noir.(y).(x)));
         e_blanc = Array.init cols (fun y->Array.init ligs (fun x->plateaux.e_blanc.(y).(x)))
-    }
+    } in plats
 ;;
 
 (* Faction opposée *)
@@ -176,9 +177,9 @@ let coups_possibles p c =
 (* nb coups possible *)
 let nbcoups_possibles p c=
     let nb = ref 0 in
-    for i = 0 to (Array.length p) -1 do
-        for j = 0 to (Array.length p.(0)) -1 do
-            if (cap_case p c i j) then
+    for i = 0 to (Array.length p.jeu) -1 do
+        for j = 0 to (Array.length p.jeu.(0)) -1 do
+            if (cap_case p.jeu c i j) then
                 nb := 1 + !nb
         done;
     done;
@@ -186,40 +187,58 @@ let nbcoups_possibles p c=
 ;;
 
 (* Met a jour le plateau de force de la couleur *)
-let maj_force plateaux c x y =
-    
+let maj_force p_force x y =
+    let cols = Array.length p_force-1 in
+    let ligs = Array.length p_force.(0)-1 in
+    match (x, y) with
+    | (0,0) ->  p_force.(0).(1) <- 150;
+                p_force.(1).(0) <- 150;
+                p_force.(1).(1) <- 250
+    | (cols,0) ->   p_force.(cols).(1) <- 150;
+                    p_force.(cols-1).(0) <- 150;
+                    p_force.(cols-1).(1) <- 250
+    | (0,ligs) ->   p_force.(0).(ligs-1) <- 150;
+                    p_force.(1).(ligs) <- 150;
+                    p_force.(1).(ligs-1) <- 250
+    | (cols,ligs) ->p_force.(cols).(ligs-1) <- 150;
+                    p_force.(cols-1).(ligs) <- 150;
+                    p_force.(cols-1).(ligs-1) <- 250
 ;;
 
 (* Joue une couleur *)
-let joue_c plateau c x y =
+let joue_c plateaux c x y =
     (List.iter
-        (fun (dx, dy) -> if (cap_dir plateau c (x, y) (dx, dy)) then
+        (fun (dx, dy) -> if (cap_dir plateaux.jeu c (x, y) (dx, dy)) then
             let rec retourne (x, y) =
-                if (valid_pos plateau x y) then
-                    if (plateau.(x).(y) = (adversaire c)) then
-                        (plateau.(x).(y) <- c; retourne (x + dx, y + dy))
+                if (valid_pos plateaux.jeu x y) then
+                    if (plateaux.jeu.(x).(y) = (adversaire c)) then
+                        (plateaux.jeu.(x).(y) <- c; retourne (x + dx, y + dy))
                     in retourne (x + dx, y + dy)
         )
     directions);
-    plateau.(x).(y) <- c
+    plateaux.jeu.(x).(y) <- c;
+    match c with
+    | Noir -> maj_force plateaux.e_noir x y
+    | Blanc -> maj_force plateaux.e_blanc x y
+    | _ -> failwith "couleur invalide"
 ;;
 
 (* Compte le nombre de pieces d'une couleur donnée *)
-let nombre plateau couleur =
+let nombre plateaux couleur =
     let res = ref 0 in
-    for i = 0 to (Array.length plateau) -1 do
-        for j = 0 to (Array.length plateau.(0)) -1 do
-            if plateau.(i).(j) = couleur then res := succ !res;
+    for i = 0 to (Array.length plateaux.jeu) -1 do
+        for j = 0 to (Array.length plateaux.jeu.(0)) -1 do
+            if plateaux.jeu.(i).(j) = couleur then res := succ !res;
         done;
     done;
     !res
 ;;
 
 (* Determine le vainqueur *)
-let vainqueur plateau =
-    if (nombre plateau Blanc) > 32 then
+let vainqueur plateaux =
+    if (nombre plateaux Blanc) > 32 then
         Blanc
-    else if (nombre plateau Noir) > 32 then
+    else if (nombre plateaux Noir) > 32 then
         Noir
     else
         Vide
@@ -250,12 +269,12 @@ let peut_jouer plateau c =
 ;;
 
 (* Joue et retourne la couleur qui doit jouer *)
-let joue plateau c x y =
-    joue_c plateau c x y;
-    if fin plateau then
+let joue plateaux c x y =
+    joue_c plateaux c x y;
+    if fin plateaux.jeu then
         Vide
     else 
-        match peut_jouer plateau (adversaire c) with
+        match peut_jouer plateaux.jeu (adversaire c) with
         | false -> c
         | _ -> adversaire c
 ;;

@@ -7,6 +7,7 @@
 
 (* configuration plateau *)
 type plateau_conf = Plateau.pconf
+type plateaux = Plateau.plateaux
 
 type pos = Plateau.pos
 type liste_pos = Plateau.liste_pos
@@ -19,39 +20,34 @@ let init conf_plat =
 (* Type de noeud *)
 type noeud = Min | Max
 
-let humain couleur plateau taille_case =
+let humain couleur plateaux taille_case =
     let rec humain_rec () =
         let etat = Graphics.wait_next_event[Graphics.Button_down]in
         let x = (etat.Graphics.mouse_x / taille_case)
         and y = (etat.Graphics.mouse_y / taille_case) in
-        if (Plateau.cap_case plateau couleur x y) then
-            Plateau.joue plateau couleur x y
+        if (Plateau.cap_case plateaux.Plateau.jeu couleur x y) then
+            Plateau.joue plateaux couleur x y
         else
             humain_rec ()
     in humain_rec ()
 ;;
 
-let rec aleatoire couleur plateau =
-    let x = Random.int (Array.length plateau) in
-    let y = Random.int (Array.length plateau.(0)) in
-    match plateau.(x).(y) with
-    | Plateau.Vide -> if (Plateau.cap_case plateau couleur x y) then
-                        Plateau.joue plateau couleur x y
+let rec aleatoire couleur plateaux =
+    let x = Random.int (Array.length plateaux.Plateau.jeu) in
+    let y = Random.int (Array.length plateaux.Plateau.jeu.(0)) in
+    match plateaux.Plateau.jeu.(x).(y) with
+    | Plateau.Vide -> if (Plateau.cap_case plateaux.Plateau.jeu couleur x y) then
+                        Plateau.joue plateaux couleur x y
                     else
-                        aleatoire couleur plateau
-    | _ -> aleatoire couleur plateau
+                        aleatoire couleur plateaux
+    | _ -> aleatoire couleur plateaux
 ;;
-
-let naif couleur plateau =
-    Plateau.Vide 
-;;
-
 
 let rec minmax_rec p c nc r eval =
     match r with
     | 0 -> eval p c
     | _ ->
-        let cp = Plateau.coups_possibles p c in
+        let cp = Plateau.coups_possibles p.Plateau.jeu c in
         match cp with
         | [] -> eval p c
         | _ ->
@@ -59,9 +55,9 @@ let rec minmax_rec p c nc r eval =
             | Max ->
                 let bsc = ref (-1000000) in
                 List.iter (fun coup ->
-                    let plat = ref (Plateau.clone p) in
-                    let coul = Plateau.joue !plat c (fst coup) (snd coup) in
-                    let sc = ref (minmax_rec !plat coul (match coul with | c -> Max | _ -> Min) (pred r) eval) in
+                    let plats = ref (Plateau.clone p) in
+                    let coul = Plateau.joue !plats c (fst coup) (snd coup) in
+                    let sc = ref (minmax_rec !plats coul (match coul with | c -> Max | _ -> Min) (pred r) eval) in
                     if sc > bsc then
                         bsc := !sc
                 ) cp;
@@ -69,9 +65,9 @@ let rec minmax_rec p c nc r eval =
             | Min ->
                 let bsc = ref 1000000 in
                 List.iter (fun coup ->
-                    let plat = ref (Plateau.clone p) in
-                    let coul = Plateau.joue !plat c (fst coup) (snd coup) in
-                    let sc = ref (minmax_rec !plat coul (match coul with | c -> Min | _ -> Max) (pred r) eval) in
+                    let plats = ref (Plateau.clone p) in
+                    let coul = Plateau.joue !plats c (fst coup) (snd coup) in
+                    let sc = ref (minmax_rec !plats coul (match coul with | c -> Min | _ -> Max) (pred r) eval) in
                     if sc < bsc then
                         bsc := !sc
                 ) cp;
@@ -79,7 +75,7 @@ let rec minmax_rec p c nc r eval =
 ;;
 
 let minmax p c r eval =
-    let cp = Plateau.coups_possibles p c in
+    let cp = Plateau.coups_possibles p.Plateau.jeu c in
     let bsc = ref (-1000000) in
     let bc = ref (0, 0) in
     List.iter (fun coup ->
@@ -97,7 +93,7 @@ let rec alphabeta_rec p c nc r eval alpha beta =
     match r with
     | 0 -> eval p c
     | _ ->
-        let cp = Plateau.coups_possibles p c in
+        let cp = Plateau.coups_possibles p.Plateau.jeu c in
         match cp with
         | [] -> eval p c
         | _ ->
@@ -129,7 +125,7 @@ let rec alphabeta_rec p c nc r eval alpha beta =
 ;;
 
 let alphabeta p c r eval =
-    let cp = Plateau.coups_possibles p c in
+    let cp = Plateau.coups_possibles p.Plateau.jeu c in
     let alpha = ref (-1000000) in
     let beta = ref 1000000 in
     let bsc = ref (-1000000) in
