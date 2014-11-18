@@ -11,7 +11,7 @@ type jeu_conf = Jeu.jconf;;
 open Tk ;;
 let menu confp confa confj =
 let top = openTk () in
-Wm.title_set top "Othello by Dupin and Escoute" ;
+Wm.title_set top "Ocamlo" ;
 
 (* Frame titre *)
 let frame_title = Frame.create top in

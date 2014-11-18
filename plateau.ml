@@ -174,17 +174,6 @@ let coups_possibles p c =
     !coups
 ;;
 
-(* nb coups possible *)
-let nbcoups_possibles p c=
-    let nb = ref 0 in
-    for i = 0 to (Array.length p.jeu) -1 do
-        for j = 0 to (Array.length p.jeu.(0)) -1 do
-            if (cap_case p.jeu c i j) then
-                nb := 1 + !nb
-        done;
-    done;
-    !nb
-;;
 
 (* Met a jour le plateau de force de la couleur *)
 let maj_force p_force x y =
@@ -224,21 +213,61 @@ let joue_c plateaux c x y =
 ;;
 
 (* Compte le nombre de pieces d'une couleur donnée *)
-let nombre plateaux couleur =
+let nb_pieces plateaux couleur =
     let res = ref 0 in
     for i = 0 to (Array.length plateaux.jeu) -1 do
         for j = 0 to (Array.length plateaux.jeu.(0)) -1 do
-            if plateaux.jeu.(i).(j) = couleur then res := succ !res;
+            if plateaux.jeu.(j).(i) = couleur then res := succ !res;
         done;
     done;
     !res
 ;;
 
+(* nb coups possible *)
+let nbcoups_possibles p c=
+    let nb = ref 0 in
+    for i = 0 to (Array.length p.jeu) -1 do
+        for j = 0 to (Array.length p.jeu.(0)) -1 do
+            if (cap_case p.jeu c j i) then
+                nb := 1 + !nb
+        done;
+    done;
+    !nb
+;;
+
+(* somme force *)
+let force p c =
+    let f = (match c with Noir -> p.e_noir | Blanc -> p.e_blanc) in
+    let sum = ref 0 in
+    for i=0 to (Array.length p.jeu)-1 do
+        for j=0 to (Array.length p.jeu.(0))-1 do
+            if p.jeu.(j).(i) = c then sum := !sum + f.(j).(i)
+        done;
+    done;
+    !sum
+;;
+
+(* scores d'une couleur *)
+let scores p c =
+    let f = (match c with Noir -> p.e_noir | Blanc -> p.e_blanc) in
+    let pieces = ref 0 in
+    let coups = ref 0 in
+    let force = ref 0 in
+    for i=0 to (Array.length p.jeu)-1 do
+        for j=0 to (Array.length p.jeu.(0))-1 do
+            match p.jeu.(j).(i) with
+            | c -> pieces := succ !pieces; force := !force + f.(j).(i)
+            | Vide -> if (cap_case p.jeu c j i) then coups := succ !coups
+        done;
+    done;
+    (!pieces, !coups, !force)
+;;
+
 (* Determine le vainqueur *)
 let vainqueur plateaux =
-    if (nombre plateaux Blanc) > 32 then
+    if (nb_pieces plateaux Blanc) > 32 then
         Blanc
-    else if (nombre plateaux Noir) > 32 then
+    else if (nb_pieces plateaux Noir) > 32 then
         Noir
     else
         Vide

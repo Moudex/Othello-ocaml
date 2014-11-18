@@ -30,6 +30,30 @@ let confa = {
 
 exception Fin_partie;;
 
+let get_eval c =
+    let mode =
+        match c with
+        | Plateau.Blanc -> confj.Jeu.eval_blanc
+        | Plateau.Noir -> confj.Jeu.eval_noir
+    in
+    match mode with
+    | Jeu.Materiel -> Plateau.nb_pieces
+    | Jeu.Mobilitee -> Plateau.nbcoups_possibles
+    | Jeu.Force -> Plateau.force
+;;
+
+let get_lvl c =
+    match c with
+    | Plateau.Blanc -> confj.Jeu.lvl_blanc
+    | Plateau.Noir -> confj.Jeu.lvl_noir
+;;
+
+let get_joueur c =
+    match c with
+    | Plateau.Blanc -> confj.Jeu.blanc
+    | Plateau.Noir -> confj.Jeu.noir
+;;
+
 let jeu () =
 
     Menu.menu confp confa confj;
@@ -39,27 +63,22 @@ let jeu () =
     while not (!tour = Plateau.Vide) do
         Ograph.aff_plateau confa !plats.Plateau.jeu;
         Ograph.aff_scores
-            ("Blanc : " ^ (string_of_int (Plateau.nombre !plats
+            ("Blanc : " ^ (string_of_int (Plateau.nb_pieces !plats
             Plateau.Blanc))^"ma "^(string_of_int (Plateau.nbcoups_possibles !plats
-            Plateau.Blanc)^"mo"))
-            ("Noir : " ^ (string_of_int (Plateau.nombre !plats
+            Plateau.Blanc))^"mo "^(string_of_int (Plateau.force !plats
+            Plateau.Blanc))^"fo")
+            ("Noir : " ^ (string_of_int (Plateau.nb_pieces !plats
             Plateau.Noir))^"ma "^(string_of_int (Plateau.nbcoups_possibles !plats
-            Plateau.Noir)^"mo"));
-        tour := match (match !tour with
-                | Plateau.Noir -> Ograph.aff_message "Au tour des noirs..."; confj.Jeu.noir
-                | Plateau.Blanc -> Ograph.aff_message "Au tour des blancs..."; confj.Jeu.blanc
-                | _ -> raise Fin_partie)
-        with
+            Plateau.Noir))^"mo "^(string_of_int (Plateau.force !plats
+            Plateau.Noir))^"fo");
+        (match !tour with
+        | Plateau.Blanc -> Ograph.aff_message "Au tour des blancs..."
+        | Plateau.Noir -> Ograph.aff_message "Au tour des noirs...");
+        tour := match (get_joueur !tour) with
         | Jeu.Humain -> Ia.humain !tour !plats confa.Ograph.taille_case
         | Jeu.Aleatoire -> Ia.aleatoire !tour !plats
-        | Jeu.MinMax -> Ia.minmax !plats !tour (match !tour with 
-                                                            | Plateau.Blanc -> confj.Jeu.lvl_blanc
-                                                            | Plateau.Noir -> confj.Jeu.lvl_noir)
-        Plateau.nombre
-        | Jeu.AlphaBeta -> Ia.alphabeta !plats !tour (match !tour with 
-                                                                    | Plateau.Blanc -> confj.Jeu.lvl_blanc
-                                                                    | Plateau.Noir -> confj.Jeu.lvl_noir)
-        Plateau.nbcoups_possibles
+        | Jeu.MinMax -> Ia.minmax !plats !tour (get_lvl !tour) (get_eval !tour)
+        | Jeu.AlphaBeta -> Ia.alphabeta !plats !tour (get_lvl !tour) (get_eval !tour)
     done;
     Ograph.aff_plateau confa !plats.Plateau.jeu;
     Ograph.aff_message "Pressez une touche pour quiter";
